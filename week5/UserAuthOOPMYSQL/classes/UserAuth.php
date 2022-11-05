@@ -1,53 +1,64 @@
+
 <?php
 include_once 'Dbh.php';
-session_start();
 
-class UserAuth extends Dbh{
+class UserAuth extends Dbh {
     private static $db;
 
     public function __construct(){
-        $this->db = new Dbh();
+        UserAuth::$db = new Dbh();
     }
-
+    
     public function register($fullname, $email, $password, $confirmPassword, $country, $gender){
-        $conn = $this->db->connect();
-        if($this->confirmPasswordMatch($password, $confirmPassword)){
-            $sql = "INSERT INTO Students (`full_names`, `email`, `password`, `country`, `gender`) VALUES ('$fullname','$email', '$password', '$country', '$gender')";
-            if($conn->query($sql)){
-               echo "Ok";
+        $conn = UserAuth::$db->connect();
+        if($this->checkEmailExist($email)) {
+            Dbh::showError("forms/register.php", "Sorry, it seems this Email already exists");
+        } else {
+            if($this->confirmPasswordMatch($password, $confirmPassword)){
+                $password = md5($password);
+                $sql = "INSERT INTO Students (`full_names`, `country`, `email`, `gender, `pwd`) VALUES ('$fullname', '$country', '$email', '$gender', '$password')";
+                if($conn->query($sql)){
+                    $_SESSION['email'] = $email;
+                    Dbh::showError("dashboard.php", "Registration successful");
+                } else {
+                    Dbh::showError("forms/register.php", "Registration failed");
+                }
             } else {
-                echo "Opps". $conn->error;
+                Dbh::showError("forms/register.php", "Passwords does not match"); 
             }
         }
-
-        
     }
 
     public function login($email, $password){
-        $conn = $this->db->connect();
-        $sql = "SELECT * FROM Students WHERE email='$email' AND `password`='$password'";
+        $conn = UserAuth::$db->connect();
+        $sql = "SELECT `pwd` FROM Students WHERE email='{$email}'";
         $result = $conn->query($sql);
         if($result->num_rows > 0){
-            $_SESSION['email'] = $email;
-            header("Location: ../dashboard.php");
+            $data = $result->fetch_array();
+            if($data[0] == md5($password)) {
+                $_SESSION['email'] = $email;
+                Dbh::showError("dashboard.php", "Login successful");
+            } else {
+                Dbh::showError("forms/login.php", "Incorrect password");
+            }
         } else {
-            header("Location: forms/login.php");
+            Dbh::showError("forms/login.php", "Email does not exist");
         }
     }
 
-    public function getUser($username){
-        $conn = $this->db->connect();
-        $sql = "SELECT * FROM users WHERE username = '$username'";
+    public function checkEmailExist($email) {
+        $conn = UserAuth::$db->connect();
+        $sql = "SELECT id FROM Students WHERE email = '{$email}'";
         $result = $conn->query($sql);
         if($result->num_rows > 0){
-            return $result->fetch_assoc();
+            return true;
         } else {
             return false;
         }
     }
 
-    public function getAllUsers(){
-        $conn = $this->db->connect();
+    public function getAllusers(){
+        $conn = UserAuth::$db->connect();
         $sql = "SELECT * FROM Students";
         $result = $conn->query($sql);
         echo"<html>
@@ -55,12 +66,12 @@ class UserAuth extends Dbh{
         <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>
         </head>
         <body>
-        <center><h1><u> ZURI PHP STUDENTS </u> </h1> 
+        <center><h1><u> ZURI PHP students </u> </h1> 
         <table class='table table-bordered' border='0.5' style='width: 80%; background-color: smoke; border-style: none'; >
         <tr style='height: 40px'>
             <thead class='thead-dark'> <th>ID</th><th>Full Names</th> <th>Email</th> <th>Gender</th> <th>Country</th> <th>Action</th>
         </thead></tr>";
-        if($result->num_rows > 0){
+        if($result->num_rows > 0){ 
             while($data = mysqli_fetch_assoc($result)){
                 //show data
                 echo "<tr style='height: 20px'>".
@@ -81,39 +92,31 @@ class UserAuth extends Dbh{
         }
     }
 
-    public function deleteUser($id){
-        $conn = $this->db->connect();
-        $sql = "DELETE FROM Students WHERE id = '$id'";
+    public function deleteUser(int $id){
+        $conn = UserAuth::$db->connect();
+        $sql = "DELETE FROM Students WHERE id = '{$id}'";
         if($conn->query($sql) === TRUE){
-            header("refresh:0.5; url=action.php?all");
+            Dbh::showError("action.php?all", "User with id: {$id} deleted successfully");
         } else {
-            header("refresh:0.5; url=action.php?all=?message=Error");
+            Dbh::showError("action.php?all", "ID ({$id}) does not exist");
         }
     }
 
-    public function updateUser($username, $password){
-        $conn = $this->db->connect();
-        $sql = "UPDATE users SET password = '$password' WHERE username = '$username'";
-        if($conn->query($sql) === TRUE){
-            header("Location: ../dashboard.php?update=success");
+    public function updateUser($email, $password){
+        $conn = UserAuth::$db->connect();
+        if($this->checkEmailExist($email)) {
+            $sql = "UPDATE Students SET password = '{$password}' WHERE email = '{$email}'";
+            if($conn->query($sql) === TRUE){
+                Dbh::showError("forms/login.php", "Password reset successful");
+            } else {
+                Dbh::showError("forms/resetpassword.php", "Password reset failed");
+            }
         } else {
-            header("Location: forms/resetpassword.php?error=1");
+            Dbh::showError("forms/resetpassword.php", "Email does not exist");
         }
     }
 
-    public function getUserByUsername($username){
-        $conn = $this->db->connect();
-        $sql = "SELECT * FROM users WHERE username = '$username'";
-        $result = $conn->query($sql);
-        if($result->num_rows > 0){
-            return $result->fetch_assoc();
-        } else {
-            return false;
-        }
-    }
-
-    public function logout($username){
-        session_start();
+    public function logout(){
         session_destroy();
         header('Location: index.php');
     }
@@ -125,4 +128,7 @@ class UserAuth extends Dbh{
             return false;
         }
     }
+
+
 }
+?>

@@ -1,20 +1,18 @@
-
-
 <?php
 include_once 'UserAuth.php';
-
 class formController extends UserAuth {
+    protected int $id;
     protected string $fullname;
     protected string $email;
     protected string $password;
     protected string $confirmPassword;
     protected string $gender;
     protected string $country;
-    protected int $id;
+    
 
-    public function __construct(){
-        $db = Dbh::connect();
-    }
+    // public function __construct(){
+    //     $db = Dbh3::connect();
+    // }
 
     public function handleForm(){
         switch(true) {

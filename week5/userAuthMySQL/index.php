@@ -25,6 +25,9 @@
       <li class="nav-item f-right">
         <a class="nav-link " href="forms/register.html">Register</a>
       </li>
+      <li class="nav-item f-right">
+        <a class="nav-link " href="forms/logout.html">Logout</a>
+      </li>
   </div>
 </nav>
 <div class="container justify-content-center">

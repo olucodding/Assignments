@@ -3,16 +3,16 @@
 
 
 //setting configuration
-function db(){
 $host = "127.0.0.1";
 $user = "root";
-$db = "zuriphp2";
+$db = "zuriPhp";
 $password = "";
 
 //parse db connection argument
 $conn = mysqli_connect($host, $user, $password, $db);
 if (!$conn) {
     die("error connecting to Database:");
-} 
-return $conn;
+} else {
+    echo "Connected to database successfully";
+
 }

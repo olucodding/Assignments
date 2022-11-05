@@ -28,7 +28,7 @@ if ($conn->connect_error) {
 }
 
 // sql to create table
-$sql = "CREATE TABLE Students (
+$sql = "CREATE TABLE Students2 (
 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 full_names VARCHAR(120) NOT NULL,
 country VARCHAR(32) NOT NULL,

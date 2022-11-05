@@ -20,7 +20,7 @@
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
       <li class="nav-item f-right">
-        <a class="nav-link" href="php/logout.php">Logout</a>
+        <a class="nav-link" href="forms/logout.html">Logout</a>
       </li>
   </div>
 </nav>

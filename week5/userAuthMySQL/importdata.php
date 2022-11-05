@@ -2,7 +2,7 @@
 
 include 'config.php';
 $query = '';
-$filename = file('D:\xampp\htdocs\PHP_PROJECTS\wk5\userAuthMySQL\users.sql'); // pls change to your file path else code won't work.
+$filename = file('D:\xampp\htdocs\LOCALGITHUB\Assignments\week5\userAuthMySQL\users.sql'); // pls change to your file path else code won't work.
 foreach ($filename as $row) {
 
     //loop through file row
@@ -19,7 +19,7 @@ foreach ($filename as $row) {
         $query = '';
     }
 }
-echo "\n Data imported successfully into Students table";
+echo "\n Data imported successfully into Students2 table";
 $conn->close();
 
 ?>
